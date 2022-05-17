@@ -3,12 +3,14 @@ package com.alexzh.myexpensio
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.alexzh.myexpensio.features.addexpense.AddExpenseScreen
+import com.alexzh.myexpensio.features.expenses.ExpensesScreen
+import com.alexzh.myexpensio.features.selectcategory.SelectCategoryScreen
+import com.alexzh.myexpensio.navigation.Destination
 import com.alexzh.myexpensio.ui.theme.MyExpensioTheme
 
 class MainActivity : ComponentActivity() {
@@ -16,19 +18,40 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MyExpensioTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colors.background
-                ) {
-                    Greeting("Android")
-                }
+                MyExpensioApp()
             }
         }
     }
 }
 
 @Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
+private fun MyExpensioApp() {
+    val navController = rememberNavController()
+    NavHost(navController = navController, startDestination = Destination.Expenses.route) {
+        composable(route = Destination.Expenses.route) {
+            ExpensesScreen(
+                onAdd = { navController.navigate(Destination.AddExpense.route) }
+            )
+        }
+        composable(route = Destination.AddExpense.route) {
+            AddExpenseScreen(
+                onNavigateBack = { navController.navigateUp() },
+                onSelectCategory = { navController.navigate(Destination.SelectCategory.route) },
+                selectedCategoryId = navController.currentBackStackEntry
+                    ?.savedStateHandle
+                    ?.get<Int>("iconId")
+            )
+        }
+        composable(route = Destination.SelectCategory.route) {
+            SelectCategoryScreen(
+                onNavigateBack = { navController.navigateUp() },
+                onSelectCategory = {
+                    navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set("iconId", it.id)
+                    navController.popBackStack()
+                }
+            )
+        }
+    }
 }

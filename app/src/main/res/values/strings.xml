@@ -1,3 +1,33 @@
 <resources>
     <string name="app_name">MyExpensio</string>
+
+    <!-- Components -->
+    <string name="collapse_menu_items">Collapse menu items</string>
+    <string name="expand_menu_items">Expand menu items</string>
+    <string name="datePicketIcon_contentDescription">Select a date</string>
+
+
+    <!-- Navigation -->
+    <string name="navigation_back_contentDescription">Back</string>
+
+    <!-- Expenses -->
+    <string name="expenses_addButton_contentDescription">Add a new expense</string>
+    <string name="expenses_summary_balance_label">BALANCE</string>
+    <string name="expenses_summary_totalIncome_label">TOTAL INCOME</string>
+    <string name="expenses_summary_totalExpense_label">TOTAL EXPENSE</string>
+
+    <!-- Add a new expense -->
+    <string name="addNewExpense_title">Add a new expense</string>
+    <string name="addNewExpense_addExpenseButton">Add an expense</string>
+
+    <string name="addNewExpense_transactionType_incomeLabel">Income</string>
+    <string name="addNewExpense_transactionType_expenseLabel">Expense</string>
+    <string name="addNewExpense_transactionType_label">Transaction Type</string>
+    <string name="addNewExpense_amount_label">Amount</string>
+    <string name="addNewExpense_transactionDate_label">Transaction Date</string>
+    <string name="addNewExpense_note_label">Note</string>
+
+    <!-- Select a category -->
+    <string name="selectCategory_title">Select a category</string>
+    <string name="selectCategory_selectCategory_contentDescription">Select a category</string>
 </resources>
