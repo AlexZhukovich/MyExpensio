@@ -33,30 +33,32 @@ fun OutlineDatePicker(
     value: LocalDate,
     formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy"),
     icon: ImageVector = Icons.Filled.DateRange,
-    iconContentDescription: String = stringResource(R.string.datePicketIcon_contentDescription),
+    iconContentDescription: String = "Select a date",
     onValueChange: (LocalDate) -> Unit
 ) {
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
-    val isDatePickerDisplayed = remember { mutableStateOf(false) }
 
-    val datePickerDialog = DatePickerDialog(
-        context, { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
-            onValueChange(LocalDate.of(year, month, dayOfMonth))
-            isDatePickerDisplayed.value = false
-            focusManager.clearFocus()
-        }, value.year, value.monthValue, value.dayOfMonth
-    )
-    datePickerDialog.setOnDismissListener {
-        isDatePickerDisplayed.value = false
-        focusManager.clearFocus()
-    }
-    if (isDatePickerDisplayed.value) {
-        datePickerDialog.show()
+    val datePickerDialog = remember {
+        DatePickerDialog(
+            context, { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
+                onValueChange(LocalDate.of(year, month, dayOfMonth))
+                focusManager.clearFocus()
+            }, value.year, value.monthValue, value.dayOfMonth
+        ).apply {
+            setOnDismissListener {
+                focusManager.clearFocus()
+            }
+        }
     }
 
     OutlinedTextField(
-        modifier = modifier.onFocusChanged { isDatePickerDisplayed.value = it.isFocused },
+        modifier = modifier.onFocusChanged {
+            if (it.isFocused)
+                datePickerDialog.show()
+            else
+                datePickerDialog.dismiss()
+        },
         label = label,
         value = value.format(formatter),
         onValueChange = { onValueChange( LocalDate.parse(it, formatter)) },
@@ -65,7 +67,7 @@ fun OutlineDatePicker(
             Icon(
                 imageVector = icon,
                 contentDescription = iconContentDescription,
-                modifier = Modifier.clickable { isDatePickerDisplayed.value = true }
+                modifier = Modifier.clickable { datePickerDialog.show() }
             )
         }
     )
