@@ -5,9 +5,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -18,26 +19,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.alexzh.myexpensio.R
 import com.alexzh.myexpensio.components.Header
-import com.alexzh.myexpensio.data.Expense
-import java.math.BigDecimal
-import java.math.RoundingMode
 
 @Composable
 fun ExpensesScreen(
     onAdd: () -> Unit,
+    viewModel: ExpensesViewModel
 ) {
-    val list = mutableListOf<Expense>()
-    repeat(30) {
-        list.add(
-            Expense(
-                icon = Icons.Default.AccountBox,
-                name = "Tickets",
-                category = "Transportation",
-                amount = BigDecimal(150.56).setScale(2, RoundingMode.HALF_UP),
-                date = "May 5, 2022"
-            )
-        )
-    }
+    val uiState by viewModel.uiState
 
     Scaffold(
         topBar = {
@@ -56,57 +44,121 @@ fun ExpensesScreen(
             }
         }
     ) {
+        when (val result = uiState) {
+            ExpensesScreenState.Loading -> LoadingContainer(it)
+            is ExpensesScreenState.Success -> SuccessContainer(result.data, it)
+            ExpensesScreenState.Empty -> MessageContainer(stringResource(R.string.expenses_no_data_this_month), it)
+            ExpensesScreenState.Error -> MessageContainer(stringResource(R.string.expenses_unexpected_error), it)
+        }
+    }
+    LaunchedEffect(Unit) {
+        viewModel.fetchSpendingCategories()
+    }
+}
 
+@Composable
+private fun LoadingContainer(
+    paddingValues: PaddingValues
+) {
+    Box(
+        modifier = Modifier.fillMaxSize()
+            .padding(paddingValues),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator()
+    }
+}
 
-        LazyColumn {
-            item {
-                Summary()
+@Composable
+private fun SuccessContainer(
+    totalExpenses: TotalExpenses,
+    paddingValues: PaddingValues
+) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize()
+            .padding(paddingValues)
+    ) {
+        item {
+            Summary(
+                totalExpenses.formattedBalance,
+                totalExpenses.formattedIncome,
+                totalExpenses.formattedExpense
+            )
+        }
+
+        itemsIndexed(totalExpenses.categories) { index, item ->
+            SpendingCategoryItem(item)
+
+            if (index < totalExpenses.categories.lastIndex) {
+                Divider(modifier = Modifier.padding(start = 56.dp))
             }
-
-            itemsIndexed(list) { index, item ->
-                TransactionItem(item)
-
-                if (index < list.lastIndex) {
-                    Divider(modifier = Modifier.padding(start = 56.dp))
-                }
-            }
-            item {
-                Box(modifier = Modifier.fillMaxWidth().height(64.dp))
-            }
+        }
+        item {
+            Box(modifier = Modifier.fillMaxWidth().height(64.dp))
         }
     }
 }
 
 @Composable
-private fun TransactionItem(expense: Expense) {
+private fun MessageContainer(
+    message: String,
+    paddingValues: PaddingValues
+) {
+    Box(
+        modifier = Modifier.fillMaxSize()
+            .padding(paddingValues),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = message,
+            fontSize = 24.sp
+        )
+    }
+}
+
+@Composable
+private fun SpendingCategoryItem(item: SpendingCategoryItem) {
     Row(
         modifier = Modifier.fillMaxWidth()
-            .height(56.dp),
+            .height(56.dp)
+            .padding(horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(
-            modifier = Modifier.size(56.dp),
-            imageVector = expense.icon,
-            contentDescription = ""
-        )
+        Surface(
+            modifier = Modifier.size(48.dp),
+            shape = MaterialTheme.shapes.medium,
+            color = MaterialTheme.colors.primary
+        ) {
+            Icon(
+                modifier = Modifier.fillMaxSize().padding(4.dp),
+                imageVector = item.icon,
+                contentDescription = null,
+                tint = Color.White
+            )
+        }
 
-        Column(modifier = Modifier.weight(1.0f)) {
-            Text(expense.name, fontSize = 16.sp)
-            Text(expense.category, fontSize = 12.sp)
+        Column(
+            modifier = Modifier.weight(1.0f)
+                .padding(horizontal = 8.dp)
+        ) {
+            Text(item.name, fontSize = 16.sp)
         }
 
         Column(
             modifier = Modifier.padding(end = 8.dp),
             horizontalAlignment = Alignment.End
         ) {
-            Text(expense.amount.toString(), fontSize = 16.sp)
-            Text(expense.date, fontSize = 12.sp)
+            Text(item.formattedAmount, fontSize = 16.sp)
         }
     }
 }
 
 @Composable
-private fun Summary() {
+private fun Summary(
+    formattedBalance: String,
+    formattedIncome: String,
+    formattedExpense: String
+) {
     Surface(
         modifier = Modifier.fillMaxWidth()
             .height(160.dp),
@@ -128,7 +180,7 @@ private fun Summary() {
                 )
                 Text(
                     modifier = Modifier.padding(start = 4.dp),
-                    text = "$ 4000,00",
+                    text = formattedBalance,
                     textAlign = TextAlign.Center,
                     fontSize = 28.sp
                 )
@@ -169,7 +221,7 @@ private fun Summary() {
                         )
                         Text(
                             modifier = Modifier.padding(start = 4.dp),
-                            text = "$ 5300,25",
+                            text = formattedIncome,
                             textAlign = TextAlign.Center,
                             fontSize = 18.sp
                         )
@@ -199,7 +251,7 @@ private fun Summary() {
                         )
                         Text(
                             modifier = Modifier.padding(start = 4.dp),
-                            text = "$ 1300,25",
+                            text = formattedExpense,
                             textAlign = TextAlign.Center,
                             fontSize = 18.sp
                         )

@@ -12,6 +12,7 @@ import com.alexzh.myexpensio.features.expenses.ExpensesScreen
 import com.alexzh.myexpensio.features.selectcategory.SelectCategoryScreen
 import com.alexzh.myexpensio.navigation.Destination
 import com.alexzh.myexpensio.ui.theme.MyExpensioTheme
+import org.koin.androidx.compose.get
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,7 +31,8 @@ private fun MyExpensioApp() {
     NavHost(navController = navController, startDestination = Destination.Expenses.route) {
         composable(route = Destination.Expenses.route) {
             ExpensesScreen(
-                onAdd = { navController.navigate(Destination.AddExpense.route) }
+                onAdd = { navController.navigate(Destination.AddExpense.route) },
+                viewModel = get()
             )
         }
         composable(route = Destination.AddExpense.route) {

@@ -15,6 +15,8 @@
     <string name="expenses_summary_balance_label">BALANCE</string>
     <string name="expenses_summary_totalIncome_label">TOTAL INCOME</string>
     <string name="expenses_summary_totalExpense_label">TOTAL EXPENSE</string>
+    <string name="expenses_no_data_this_month">No date in this month</string>
+    <string name="expenses_unexpected_error">Unexpected error</string>
 
     <!-- Add a new expense -->
     <string name="addNewExpense_title">Add a new expense</string>
