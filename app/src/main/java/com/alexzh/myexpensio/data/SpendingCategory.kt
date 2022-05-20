@@ -6,5 +6,6 @@ data class SpendingCategory(
     val id: Long,
     val name: String,
     val amount: BigDecimal,
-    val categoryType: SpendingCategoryType
+    val categoryType: SpendingCategoryType,
+    val icon: String
 )

@@ -90,7 +90,7 @@ private fun SuccessContainer(
             SpendingCategoryItem(item)
 
             if (index < totalExpenses.categories.lastIndex) {
-                Divider(modifier = Modifier.padding(start = 56.dp))
+                Divider(modifier = Modifier.padding(start = 64.dp))
             }
         }
         item {
@@ -131,7 +131,7 @@ private fun SpendingCategoryItem(item: SpendingCategoryItem) {
         ) {
             Icon(
                 modifier = Modifier.fillMaxSize().padding(4.dp),
-                imageVector = item.icon,
+                painter = painterResource(item.icon),
                 contentDescription = null,
                 tint = Color.White
             )

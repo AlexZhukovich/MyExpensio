@@ -1,12 +1,12 @@
 package com.alexzh.myexpensio.features.expenses
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.alexzh.myexpensio.R
 import com.alexzh.myexpensio.core.AmountCurrencyFormatter
+import com.alexzh.myexpensio.core.icon.IconMapper
 import com.alexzh.myexpensio.data.SpendingCategoryRepository
 import com.alexzh.myexpensio.data.SpendingCategoryType
 import kotlinx.coroutines.launch
@@ -14,7 +14,8 @@ import java.time.LocalDate
 
 class ExpensesViewModel(
     private val repository: SpendingCategoryRepository,
-    private val currencyFormatter: AmountCurrencyFormatter
+    private val currencyFormatter: AmountCurrencyFormatter,
+    private val iconMapper: IconMapper
 ) : ViewModel() {
     // TODO: FIX WITH SETTINGS
     private val currencyCode = "EUR"
@@ -43,13 +44,7 @@ class ExpensesViewModel(
                                         (if (category.categoryType == SpendingCategoryType.EXPENSE) category.amount.negate() else category.amount).toDouble(),
                                         currencyCode
                                     ),
-                                    icon = when (category.name) {
-                                        "salary" -> Icons.Filled.AccountCircle
-                                        "groceries" -> Icons.Filled.Add
-                                        "transportation" -> Icons.Filled.Call
-                                        "utilities" -> Icons.Filled.Done
-                                        else -> Icons.Default.Info
-                                    }
+                                    icon = iconMapper.getIcon(category.icon, R.drawable.ic_question_mark)
                                 )
                             }
                         )
